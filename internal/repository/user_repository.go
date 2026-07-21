@@ -18,9 +18,9 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	}
 }
 
-func (r *UserRepository)GetByEmail(email string)(*model.User,error){
+func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 
-   query := `SELECT 
+	query := `SELECT 
    				id,
 				name,
 				email,
@@ -30,7 +30,7 @@ func (r *UserRepository)GetByEmail(email string)(*model.User,error){
 			FROM users
 			WHERE email = $1`
 	user := &model.User{}
-	err := r.db.QueryRow(context.Background(),query,email).Scan(
+	err := r.db.QueryRow(context.Background(), query, email).Scan(
 		&user.ID,
 		&user.Name,
 		&user.Email,
@@ -39,8 +39,8 @@ func (r *UserRepository)GetByEmail(email string)(*model.User,error){
 		&user.UpdatedAt,
 	)
 
-	if err !=nil{
-		if err == pgx.ErrNoRows{
+	if err != nil {
+		if err == pgx.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
@@ -49,7 +49,7 @@ func (r *UserRepository)GetByEmail(email string)(*model.User,error){
 
 }
 
-func (r *UserRepository)Create(user *model.User)error{
+func (r *UserRepository) Create(user *model.User) error {
 
 	query := `
 		INSERT INTO  users(
@@ -59,6 +59,6 @@ func (r *UserRepository)Create(user *model.User)error{
 		)
 		VALUES ($1, $2, $3)`
 
-	_,err := r.db.Exec(context.Background(),query,user.Name,user.Email,user.PasswordHash)
+	_, err := r.db.Exec(context.Background(), query, user.Name, user.Email, user.PasswordHash)
 	return err
 }

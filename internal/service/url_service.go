@@ -12,14 +12,14 @@ type URLService struct {
 	repo *repository.URLRepository
 }
 
-func NewURLService(repo *repository.URLRepository)*URLService{
+func NewURLService(repo *repository.URLRepository) *URLService {
 	return &URLService{
 		repo: repo,
 	}
 }
-func (s *URLService)CreateShortURL(userID, originalURL string)(*model.URL, error){
+func (s *URLService) CreateShortURL(userID, originalURL string) (*model.URL, error) {
 	err := utils.ValidateURL(originalURL)
-	if err!=nil{
+	if err != nil {
 		return nil, err
 	}
 	existingUrl, err := s.repo.GetByOriginalURL(userID, originalURL)
@@ -35,10 +35,10 @@ func (s *URLService)CreateShortURL(userID, originalURL string)(*model.URL, error
 
 	for {
 		code, err := utils.GenerateShortCode()
-		if err!=nil{
-			return nil,err
+		if err != nil {
+			return nil, err
 		}
-		
+
 		existing, err := s.repo.GetByShortCode(code)
 		if err != nil {
 			return nil, err
@@ -51,49 +51,49 @@ func (s *URLService)CreateShortURL(userID, originalURL string)(*model.URL, error
 	}
 
 	url := &model.URL{
-		ShortCode: shortCode,
+		ShortCode:   shortCode,
 		OriginalURL: originalURL,
-		UserID: userID,
+		UserID:      userID,
 	}
 
-	if err = s.repo.Create(url);err!= nil{
+	if err = s.repo.Create(url); err != nil {
 		return nil, err
 	}
 	return url, nil
 
 }
 
-func (s *URLService) Redirect(shortCode string) (string, error){
+func (s *URLService) Redirect(shortCode string) (string, error) {
 
 	url, err := s.repo.GetByShortCode(shortCode)
-	if err!=nil{
-		return "",err
-	}
-	if url == nil{
-		return "",errors.New("url not found")
-	}
-	err = s.repo.IncrementClickCount(url.ID)
-	if err!= nil{
+	if err != nil {
 		return "", err
 	}
-	return url.OriginalURL,nil
+	if url == nil {
+		return "", errors.New("url not found")
+	}
+	err = s.repo.IncrementClickCount(url.ID)
+	if err != nil {
+		return "", err
+	}
+	return url.OriginalURL, nil
 }
 
-func (s *URLService) GetUserURLs(userID string) ([]model.URL, error){
+func (s *URLService) GetUserURLs(userID string) ([]model.URL, error) {
 	urls, err := s.repo.GetByUserID(userID)
-	if err!=nil{
-		return nil,err
+	if err != nil {
+		return nil, err
 	}
 
-	return urls,nil
+	return urls, nil
 }
 
-func (s *URLService) DeleteURL(userID, urlID string) error{
-    url, err := s.repo.GetByID(urlID)
-	if err!=nil{
-		return  err
+func (s *URLService) DeleteURL(userID, urlID string) error {
+	url, err := s.repo.GetByID(urlID)
+	if err != nil {
+		return err
 	}
-	if url ==nil{
+	if url == nil {
 		return errors.New("no url found")
 	}
 	if url.UserID != userID {

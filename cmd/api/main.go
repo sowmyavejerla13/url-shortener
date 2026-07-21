@@ -15,24 +15,24 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 	db, err := database.NewPostgres(cfg)
-	if err!=nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo,cfg)
+	userService := service.NewUserService(userRepo, cfg)
 	userAuthHandler := handler.NewAuthHandler(userService)
 	urlRepo := repository.NewURLRepository(db)
 	urlService := service.NewURLService(urlRepo)
-	urlHandler := handler.NewURLHandler(urlService,cfg.AppEnv)
+	urlHandler := handler.NewURLHandler(urlService, cfg.AppEnv)
 
 	router := gin.Default()
-	routes.SetupRoutes(router,userAuthHandler,urlHandler,cfg)
+	routes.SetupRoutes(router, userAuthHandler, urlHandler, cfg)
 
-	log.Printf("Starting %s on port %s..\n",cfg.AppName,cfg.AppPort)
+	log.Printf("Starting %s on port %s..\n", cfg.AppName, cfg.AppPort)
 
-	if err:= router.Run(":"+cfg.AppPort);err!=nil{
+	if err := router.Run(":" + cfg.AppPort); err != nil {
 		log.Fatal(err)
 	}
 }

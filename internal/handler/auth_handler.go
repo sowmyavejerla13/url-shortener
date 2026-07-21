@@ -14,31 +14,31 @@ type AuthHandler struct {
 	userService *service.UserService
 }
 
-func NewAuthHandler(service *service.UserService)*AuthHandler{
+func NewAuthHandler(service *service.UserService) *AuthHandler {
 	return &AuthHandler{
 		userService: service,
 	}
 }
 
-func (h *AuthHandler)Register(c *gin.Context){
+func (h *AuthHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
 
-	if err := c.ShouldBindJSON(&req); err!=nil{
-		if _,ok := err.(validator.ValidationErrors);ok{
+	if err := c.ShouldBindJSON(&req); err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"errors": utils.FormatValidationErrors(err),
 			})
-			return 
-		}
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid request body",
-			})
 			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request body",
+		})
+		return
 	}
 
-	err := h.userService.Register(req.Name,req.Email,req.Password)
-	if err !=nil{
-		c.JSON(http.StatusBadRequest,gin.H{
+	err := h.userService.Register(req.Name, req.Email, req.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
@@ -50,37 +50,37 @@ func (h *AuthHandler)Register(c *gin.Context){
 
 }
 
-func (h *AuthHandler)Login(c *gin.Context){
+func (h *AuthHandler) Login(c *gin.Context) {
 
 	var req dto.LoginRequest
 
-	if err := c.ShouldBindJSON(&req); err!=nil{
-		if _,ok := err.(validator.ValidationErrors);ok{
+	if err := c.ShouldBindJSON(&req); err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"errors": utils.FormatValidationErrors(err),
 			})
-			return 
-		}
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid request body",
-			})
 			return
-	}
-
-	token, err:= h.userService.Login(req.Email,req.Password)
-	if err!=nil{
-		c.JSON(http.StatusUnauthorized,gin.H{
-			"error":err.Error(),
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request body",
 		})
 		return
 	}
-		c.JSON(http.StatusCreated,dto.LoginResponse{
-			Token: token,
+
+	token, err := h.userService.Login(req.Email, req.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
 		})
+		return
+	}
+	c.JSON(http.StatusCreated, dto.LoginResponse{
+		Token: token,
+	})
 
 }
 
-func(h *AuthHandler)Me(c * gin.Context){
+func (h *AuthHandler) Me(c *gin.Context) {
 	userID := c.GetString("userID")
 
 	c.JSON(http.StatusOK, gin.H{
@@ -89,6 +89,6 @@ func(h *AuthHandler)Me(c * gin.Context){
 	})
 }
 
-func (h *AuthHandler)Urls(c *gin.Context){
-	
+func (h *AuthHandler) Urls(c *gin.Context) {
+
 }

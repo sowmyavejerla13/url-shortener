@@ -11,8 +11,8 @@ func SetupRoutes(
 	router *gin.Engine,
 	authHandler *handler.AuthHandler,
 	urlHandler *handler.URLHandler,
-	 cfg *config.Config,
-	 ){
+	cfg *config.Config,
+) {
 	router.GET("/:shortCode", urlHandler.Redirect)
 	api := router.Group("/api/v1")
 	router.GET("/health", handler.Health)
@@ -32,4 +32,3 @@ func SetupRoutes(
 	}
 
 }
-

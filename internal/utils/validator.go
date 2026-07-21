@@ -15,7 +15,7 @@ func FormatValidationErrors(err error) map[string]string {
 	for _, fieldErr := range err.(validator.ValidationErrors) {
 
 		field := strings.ToLower(fieldErr.Field())
-		
+
 		switch fieldErr.Tag() {
 
 		case "required":
