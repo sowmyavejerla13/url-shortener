@@ -1,3 +1,10 @@
+![Go](https://img.shields.io/badge/Go-1.25-blue)
+![Gin](https://img.shields.io/badge/Gin-Web_Framework-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 # URL Shortener Service
 
 A production-ready URL Shortener REST API built with **Go**, **Gin**, **PostgreSQL**, and **Clean Architecture**.
@@ -167,6 +174,13 @@ go run ./cmd/api
 * GitHub Actions CI/CD
 
 ---
+
+
+## 📷 Screenshots
+
+### Swagger UI
+
+![Swagger Home](docs/images/swagger.png)
 
 ## 📄 License
 
