@@ -1,22 +1,35 @@
 package service
 
 import (
-	"errors"
-
 	"github.com/sowmyavejerla13/url-shortener/internal/model"
 	"github.com/sowmyavejerla13/url-shortener/internal/repository"
 	"github.com/sowmyavejerla13/url-shortener/internal/utils"
+
+	appErrors "github.com/sowmyavejerla13/url-shortener/internal/apperrors"
 )
 
 type URLService struct {
-	repo *repository.URLRepository
+	repo              repository.URLRepositoryInterface
+	generateShortCode func() (string, error)
 }
 
-func NewURLService(repo *repository.URLRepository) *URLService {
+func NewURLService(
+	repo repository.URLRepositoryInterface,
+	generateShortCode func() (string, error),
+) *URLService {
 	return &URLService{
-		repo: repo,
+		repo:              repo,
+		generateShortCode: generateShortCode,
 	}
 }
+
+type URLServiceInterface interface {
+	CreateShortURL(userID, originalURL string) (*model.URL, error)
+	Redirect(shortCode string) (string, error)
+	GetUserURLs(userID string) ([]model.URL, error)
+	DeleteURL(userID, urlID string) error
+}
+
 func (s *URLService) CreateShortURL(userID, originalURL string) (*model.URL, error) {
 	err := utils.ValidateURL(originalURL)
 	if err != nil {
@@ -34,7 +47,7 @@ func (s *URLService) CreateShortURL(userID, originalURL string) (*model.URL, err
 	var shortCode string
 
 	for {
-		code, err := utils.GenerateShortCode()
+		code, err := s.generateShortCode()
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +83,7 @@ func (s *URLService) Redirect(shortCode string) (string, error) {
 		return "", err
 	}
 	if url == nil {
-		return "", errors.New("url not found")
+		return "", appErrors.ErrURLNotFound
 	}
 	err = s.repo.IncrementClickCount(url.ID)
 	if err != nil {
@@ -94,10 +107,10 @@ func (s *URLService) DeleteURL(userID, urlID string) error {
 		return err
 	}
 	if url == nil {
-		return errors.New("no url found")
+		return appErrors.ErrURLNotFound
 	}
 	if url.UserID != userID {
-		return errors.New("forbidden")
+		return appErrors.ErrForbidden
 	}
 
 	return s.repo.Delete(urlID)

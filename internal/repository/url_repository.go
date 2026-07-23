@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,6 +16,16 @@ func NewURLRepository(db *pgxpool.Pool) *URLRepository {
 	return &URLRepository{
 		db: db,
 	}
+}
+
+type URLRepositoryInterface interface {
+	Create(url *model.URL) error
+	GetByOriginalURL(userID, originalURL string) (*model.URL, error)
+	GetByShortCode(shortCode string) (*model.URL, error)
+	IncrementClickCount(id string) error
+	GetByUserID(userID string) ([]model.URL, error)
+	GetByID(id string) (*model.URL, error)
+	Delete(id string) error
 }
 
 func (r *URLRepository) Create(url *model.URL) error {
@@ -48,6 +57,39 @@ func (r *URLRepository) Create(url *model.URL) error {
 	)
 }
 
+func (r *URLRepository) GetByOriginalURL(userID, originalURL string) (*model.URL, error) {
+	query := `	SELECT 
+   				 	id,
+					short_code,
+					original_url,
+					user_id,
+					click_count,
+					created_at,
+					updated_at
+				FROM urls
+				WHERE user_id = $1
+  				AND original_url = $2;
+			`
+	url := &model.URL{}
+	err := r.db.QueryRow(context.Background(), query, userID, originalURL).Scan(
+		&url.ID,
+		&url.ShortCode,
+		&url.OriginalURL,
+		&url.UserID,
+		&url.ClickCount,
+		&url.CreatedAt,
+		&url.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return url, nil
+}
+
 func (r *URLRepository) GetByShortCode(code string) (*model.URL, error) {
 	query := `SELECT 
    				id,
@@ -76,6 +118,23 @@ func (r *URLRepository) GetByShortCode(code string) (*model.URL, error) {
 		return nil, err
 	}
 	return url, nil
+}
+
+func (r *URLRepository) IncrementClickCount(id string) error {
+	query := `
+		UPDATE urls
+		SET click_count = click_count + 1
+			WHERE id = $1
+	`
+	cmd, err := r.db.Exec(
+		context.Background(),
+		query,
+		id,
+	)
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return err
 }
 
 func (r *URLRepository) GetByUserID(userID string) ([]model.URL, error) {
@@ -125,55 +184,6 @@ func (r *URLRepository) GetByUserID(userID string) ([]model.URL, error) {
 	return urls, nil
 }
 
-func (r *URLRepository) GetByOriginalURL(userID, originalURL string) (*model.URL, error) {
-	query := `	SELECT 
-   				 	id,
-					short_code,
-					original_url,
-					user_id,
-					click_count,
-					created_at,
-					updated_at
-				FROM urls
-				WHERE user_id = $1
-  				AND original_url = $2;
-			`
-	url := &model.URL{}
-	err := r.db.QueryRow(context.Background(), query, userID, originalURL).Scan(
-		&url.ID,
-		&url.ShortCode,
-		&url.OriginalURL,
-		&url.UserID,
-		&url.ClickCount,
-		&url.CreatedAt,
-		&url.UpdatedAt,
-	)
-
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return url, nil
-}
-
-func (r *URLRepository) IncrementClickCount(id string) error {
-	query := `
-		UPDATE urls
-		SET click_count = click_count + 1
-			WHERE id = $1
-	`
-	cmd, err := r.db.Exec(
-		context.Background(),
-		query,
-		id,
-	)
-	if cmd.RowsAffected() == 0 {
-		return errors.New("url not found")
-	}
-	return err
-}
 func (r *URLRepository) GetByID(id string) (*model.URL, error) {
 	query := `	SELECT 
    				 	id,
@@ -218,7 +228,7 @@ func (r *URLRepository) Delete(id string) error {
 	}
 
 	if cmd.RowsAffected() == 0 {
-		return errors.New("url not found")
+		return pgx.ErrNoRows
 	}
 
 	return nil

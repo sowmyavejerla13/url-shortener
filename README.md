@@ -1,44 +1,27 @@
 # URL Shortener Service
 
-A production-ready URL Shortener REST API built with Go, Gin, PostgreSQL, JWT Authentication, and Clean Architecture.
-
-## 🚀 Features
-
-* User Registration
-* User Login
-* JWT Authentication
-* Protected API Routes
-* Create Short URLs
-* Redirect Short URLs
-* Click Tracking
-* List User URLs
-* Delete User URLs
-* PostgreSQL Persistence
-* Dockerized Database
-* Database Migrations
-* Clean Architecture (Handler → Service → Repository)
+A production-ready URL Shortener REST API built with **Go**, **Gin**, **PostgreSQL**, and **Clean Architecture**.
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Tech Stack
 
 * Go
 * Gin
 * PostgreSQL
-* pgx/v5
-* JWT
-* bcrypt
-* Docker
-* golang-migrate
+* pgx
+* JWT Authentication
+* Docker Compose
+* Viper
+* Clean Architecture
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
-```
+```text
 cmd/
-    api/
-
+docs/
 internal/
     config/
     database/
@@ -49,175 +32,142 @@ internal/
     repository/
     routes/
     service/
-    utils/
-
 migrations/
+pkg/
 tests/
-docs/
 ```
+
+---
+
+## ✨ Features
+
+### Authentication
+
+* User Registration
+* User Login
+* JWT Authentication
+* Password Hashing using bcrypt
+* Protected Routes
+
+### URL Management
+
+* Create Short URL
+* Redirect using Short Code
+* Get User URLs
+* Delete User URL
+* Click Count Tracking
+* Duplicate URL Detection
+
+### Production Features
+
+* Clean Architecture
+* Repository Pattern
+* Service Layer
+* DTOs
+* PostgreSQL Integration
+* Structured Logging (`log/slog`)
+* Environment Configuration using Viper
+* Configuration Validation
+* Graceful Server Shutdown
+* Docker Compose for PostgreSQL
 
 ---
 
 ## 📌 API Endpoints
 
-### Health Check
-
-| Method | Endpoint  | Description      |
-| ------ | --------- | ---------------- |
-| GET    | `/health` | Check API health |
-
----
-
 ### Authentication
 
-| Method | Endpoint                | Description           |
-| ------ | ----------------------- | --------------------- |
-| POST   | `/api/v1/auth/register` | Register a new user   |
-| POST   | `/api/v1/auth/login`    | Login and receive JWT |
+| Method | Endpoint           | Description         |
+| ------ | ------------------ | ------------------- |
+| POST   | `/api/v1/register` | Register a new user |
+| POST   | `/api/v1/login`    | Login user          |
 
+### URL
+
+| Method | Endpoint           | Description              |
+| ------ | ------------------ | ------------------------ |
+| POST   | `/api/v1/shorten`  | Create Short URL         |
+| GET    | `/api/v1/urls`     | Get User URLs            |
+| DELETE | `/api/v1/urls/:id` | Delete URL               |
+
+## Public Redirect Endpoint
+
+| Method | Endpoint           | Description              |
+| ------ | ------------------ | ------------------------ |
+| GET    | `/:shortCode`      | Redirect to Original URL |
 ---
 
-### User Profile (Protected)
+## ⚙️ Environment Variables
 
-| Method | Endpoint     | Description                        |
-| ------ | ------------ | ---------------------------------- |
-| GET    | `/api/v1/me` | Get authenticated user information |
+Create a `.env` file:
 
----
+```env
+APP_NAME=URL Shortener
+APP_ENV=development
+APP_PORT=8080
 
-### URL Management (Protected)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=url_shortener
+SSL_MODE=disable
 
-| Method | Endpoint           | Description                                  |
-| ------ | ------------------ | -------------------------------------------- |
-| GET    | `/api/v1/urls`     | Get all URLs for the authenticated user      |
-| POST   | `/api/v1/shorten`  | Create a short URL                           |
-| DELETE | `/api/v1/urls/:id` | Delete a URL owned by the authenticated user |
-
----
-
-### Public
-
-| Method | Endpoint      | Description                  |
-| ------ | ------------- | ---------------------------- |
-| GET    | `/:shortCode` | Redirect to the original URL |
-
----
-
-## 🔐 Authentication
-
-Protected endpoints require a JWT access token.
-
-Example:
-
-```
-Authorization: Bearer <your_jwt_token>
+JWT_SECRET=your-secret-key
+JWT_EXPIRY=24h
 ```
 
-Protected routes:
-
-* `GET /api/v1/me`
-* `GET /api/v1/urls`
-* `POST /api/v1/shorten`
-* `DELETE /api/v1/urls/:id`
-
 ---
 
-## ⚙️ Running the Project
+## ▶️ Run Locally
 
-### Start PostgreSQL
+Start PostgreSQL
 
 ```bash
 docker compose up -d
 ```
 
-### Run Migrations
-
-```bash
-migrate -path migrations -database "<your_database_url>" up
-```
-
-### Start the API
+Run the application
 
 ```bash
 go run ./cmd/api
 ```
 
-The server runs at:
+---
 
-```
-http://localhost:8080
-```
+## 🧪 Project Status
+
+### ✅ Completed
+
+* Project Bootstrap
+* Configuration Management
+* PostgreSQL Integration
+* JWT Authentication
+* Password Hashing
+* Authentication Middleware
+* URL Shortening
+* URL Redirection
+* Click Count Tracking
+* Get User URLs
+* Delete URL
+* Duplicate URL Detection
+* Repository Pattern
+* Service Layer
+* DTO Mapping
+* Structured Logging
+* Configuration Validation
+* Graceful Shutdown
+
+### 🚧 Planned
+
+* Swagger / OpenAPI Documentation
+* Unit Tests
+* Integration Tests
+* Dockerize Go Application
+* GitHub Actions CI/CD
 
 ---
 
-## 📦 Architecture
+## 📄 License
 
-The project follows a layered architecture:
-
-```
-HTTP Request
-      │
-      ▼
-Gin Router
-      │
-      ▼
-Middleware
-      │
-      ▼
-Handler
-      │
-      ▼
-Service
-      │
-      ▼
-Repository
-      │
-      ▼
-PostgreSQL
-```
-
-This separation keeps business logic independent from HTTP and database implementation.
-
----
-
-## ✅ Completed
-
-* Project setup
-* Configuration management
-* PostgreSQL integration
-* Dockerized database
-* Database migrations
-* User registration
-* User login
-* Password hashing with bcrypt
-* JWT authentication
-* Authentication middleware
-* URL validation
-* Random short code generation
-* Create short URLs
-* Redirect using short code
-* Click count tracking
-* Get authenticated user's URLs
-* Delete authenticated user's URLs
-* Get authenticated user profile
-* Clean Architecture implementation
-
----
-
-## 🚀 Future Improvements
-
-* React frontend
-* Custom aliases
-* URL expiration
-* URL analytics dashboard
-* Unit and integration tests
-* Rate limiting
-* Redis caching
-* CI/CD pipeline
-* Production deployment
-
----
-
-## License
-
-MIT
+This project is licensed under the MIT License. See the `LICENSE` file for details.

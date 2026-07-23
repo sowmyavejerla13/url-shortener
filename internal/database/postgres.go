@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,17 +23,15 @@ func NewPostgres(cfg *config.Config) (*pgxpool.Pool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	log.Println(connString)
 	db, err := pgxpool.New(ctx, connString)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create postgres pool: %w", err)
 	}
 
 	if err := db.Ping(ctx); err != nil {
-		return nil, err
+		db.Close()
+		return nil, fmt.Errorf("ping postgres: %w", err)
 	}
-
-	log.Println("Connected to PostgreSQL")
 
 	return db, nil
 }

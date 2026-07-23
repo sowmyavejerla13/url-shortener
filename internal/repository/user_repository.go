@@ -18,6 +18,11 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	}
 }
 
+type UserRepositoryInterface interface {
+	GetByEmail(email string) (*model.User, error)
+	Create(user *model.User) error
+}
+
 func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 
 	query := `SELECT 

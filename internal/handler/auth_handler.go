@@ -11,15 +11,26 @@ import (
 )
 
 type AuthHandler struct {
-	userService *service.UserService
+	userService service.UserServiceInterface
 }
 
-func NewAuthHandler(service *service.UserService) *AuthHandler {
+func NewAuthHandler(service service.UserServiceInterface) *AuthHandler {
 	return &AuthHandler{
 		userService: service,
 	}
 }
 
+// Register godoc
+//
+// @Summary Register a new user
+// @Description Creates a new user account
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body dto.RegisterRequest true "Register Request"
+// @Success 201 {object} dto.RegisterResponse
+// @Failure 400 {object} map[string]string
+// @Router /register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
 
@@ -50,6 +61,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 }
 
+// Login godoc
+//
+// @Summary Login a user
+// @Description Login user account
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body dto.LoginRequest true "Login Request"
+// @Success 201 {object} dto.LoginResponse
+// @Failure 400 {object} map[string]string
+// @Router /login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 
 	var req dto.LoginRequest
@@ -87,8 +109,4 @@ func (h *AuthHandler) Me(c *gin.Context) {
 		"user_id": userID,
 		"message": "Authenticated",
 	})
-}
-
-func (h *AuthHandler) Urls(c *gin.Context) {
-
 }

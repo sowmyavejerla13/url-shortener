@@ -5,6 +5,8 @@ import (
 	"github.com/sowmyavejerla13/url-shortener/internal/config"
 	"github.com/sowmyavejerla13/url-shortener/internal/handler"
 	"github.com/sowmyavejerla13/url-shortener/internal/middleware"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRoutes(
@@ -14,6 +16,8 @@ func SetupRoutes(
 	cfg *config.Config,
 ) {
 	router.GET("/:shortCode", urlHandler.Redirect)
+	router.GET("/swagger/*any",
+		ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := router.Group("/api/v1")
 	router.GET("/health", handler.Health)
 
